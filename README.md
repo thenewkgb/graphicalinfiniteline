@@ -2,7 +2,7 @@
 
 Required
 SDL2 library
-SDL2_tff library
+SDL2_tff library (https://github.com/googlefonts/roboto/blob/main/LICENSE)
 Manual entry for one-off configuration
 For loop can display 10 variations
 
