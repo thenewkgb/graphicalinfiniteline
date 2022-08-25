@@ -203,7 +203,16 @@ void initgrid(std::vector<std::vector<int>> &arr, std::vector<std::vector<int>> 
     addleft(arr[7], arr2[7]);
 }
 
+<<<<<<< HEAD
 /*
+=======
+void initGridDiag(std::vector<std::vector<int>> &arr)
+{
+    diagonalTop(arr);
+    diagonalBottom(arr);
+}
+
+>>>>>>> b980739edc0c503a611dbd3b8d69d000b7729d4e
 static SDL_Texture *loadText(SDL_Renderer *renderer, const char *text)
 {
     if (TTF_Init() == -1)
@@ -228,8 +237,13 @@ static SDL_Texture *loadText(SDL_Renderer *renderer, const char *text)
     }
     return texture;
 }
+<<<<<<< HEAD
 */
 SDL_Texture *createRedSquare(SDL_Renderer *renderer)
+=======
+
+SDL_Texture *createSquare(SDL_Renderer *renderer, int r, int g, int b)
+>>>>>>> b980739edc0c503a611dbd3b8d69d000b7729d4e
 {
     SDL_Surface *redsurface = NULL;
     redsurface = SDL_CreateRGBSurface(0, 50, 50, 32, 0, 0, 0, 0);
@@ -270,8 +284,12 @@ SDL_Texture *createBlueTexture(SDL_Renderer *renderer)
 
     return bluetexture;
 }
+<<<<<<< HEAD
 
 /*
+=======
+*/
+>>>>>>> b980739edc0c503a611dbd3b8d69d000b7729d4e
 void printNumbers(SDL_Renderer *renderer, int w, int x, int y, int z)
 {
     // display numbers
@@ -406,8 +424,13 @@ int main(int argc, char *argv[])
         printdiffgrid(arrDiff, redtexture, greentexture, bluetexture, renderer);
 
         // display numberd under grid
+<<<<<<< HEAD
         //printNumbers(renderer, w, x, y, z);
         
+=======
+        printNumbers(renderer, w, x, y, z);
+
+>>>>>>> b980739edc0c503a611dbd3b8d69d000b7729d4e
         // update screen
         SDL_RenderPresent(renderer);
 
