@@ -47,7 +47,7 @@ int addright(std::vector<int> &vtr, std::vector<int> &vtr2)
 {
     // where is the middle?
     int coord1 = vtr.size() / 2;
-    int ans {0};
+    int ans{0};
 
     for (int j = coord1; j < vtr.size() - 1; ++j)
     {
@@ -62,10 +62,10 @@ int addright(std::vector<int> &vtr, std::vector<int> &vtr2)
     return ans;
 }
 int addleft(std::vector<int> &vtr,
-                    std::vector<int> &vtr2)
+            std::vector<int> &vtr2)
 {
     int coord0 = vtr.size() / 2 - 1;
-    int ans {0};
+    int ans{0};
 
     for (int j = coord0; j > 0; --j)
     {
@@ -82,7 +82,7 @@ int addleft(std::vector<int> &vtr,
 int adddown(std::vector<std::vector<int>> &arr, int column, std::vector<std::vector<int>> &arr2)
 {
     int coord1 = arr.size() / 2;
-    int ans {0};
+    int ans{0};
 
     for (int j = coord1; j < arr.size() - 1; ++j)
     {
@@ -99,7 +99,7 @@ int adddown(std::vector<std::vector<int>> &arr, int column, std::vector<std::vec
 int addup(std::vector<std::vector<int>> &arr, int column, std::vector<std::vector<int>> &arr2)
 {
     int coord0 = arr.size() / 2 - 1;
-    int ans {0};
+    int ans{0};
 
     for (int j = coord0; j > 0; --j)
     {
@@ -114,6 +114,65 @@ int addup(std::vector<std::vector<int>> &arr, int column, std::vector<std::vecto
     return ans;
 }
 
+void calcDiagonals(std::vector<std::vector<int>> &arr, int a, int b, int i)
+{
+    if (i > 0)
+    {
+        int first = get(arr, a, b);
+        int second = get(arr, a - 1, b - 1);
+        int ans = sum(second, first);
+        int t = total(second, ans);
+        put(t, arr, a - 2, b - 2);
+        calcDiagonals(arr, a - 1, b - 1, i - 1);
+    }
+}
+
+void diagonalBottom(std::vector<std::vector<int>> &arr)
+{
+    // include longest diagonal
+    // top right, bottom left
+    int size = arr.size();
+    int sum2 = size - 2 - 1;
+
+    for (int i = 0; i < sum2; ++i)
+    {
+        // - 1 for vector[0]
+        int a = size - 1 - sum2 + i;
+        // -1 for vector[0]
+        int b = arr[0].size() - 1;
+        int first = get(arr, a, b);
+        int second = get(arr, a - 1, b - 1);
+        int ans = sum(second, first);
+        int t = total(second, ans);
+        put(t, arr, a - 2, b - 2);
+        calcDiagonals(arr, a - 1, b - 1, i);
+    }
+
+    // hack
+    // longest diagonal
+    calcDiagonals(arr, 7, 7, 6);
+}
+
+void diagonalTop(std::vector<std::vector<int>> &arr)
+{
+    int size = arr.size();
+    int sum2 = size - 2 - 1;
+
+    for (int i = 0; i < sum2; ++i)
+    {
+        // - 1 for vector[0]
+        int b = size - 1 - sum2 + i;
+        // -1 for vector[0]
+        int a = arr[0].size() - 1;
+        int first = get(arr, a, b);
+        int second = get(arr, a - 1, b - 1);
+        int ans = sum(second, first);
+        int t = total(second, ans);
+        put(t, arr, a - 2, b - 2);
+        calcDiagonals(arr, a - 1, b - 1, i);
+    }
+}
+
 void changeRedSurfaceColour(SDL_Texture *redtexture, int val)
 {
     int value = (val * 4) % 255;
@@ -126,7 +185,19 @@ void changeGreenSurfaceColour(SDL_Texture *greentexture, int val)
     SDL_SetTextureColorMod(greentexture, 0, value, 0);
 }
 
-void printline(SDL_Texture *redtexture, SDL_Texture *greentexture, SDL_Texture *bluetexture, SDL_Renderer *renderer, int row, std::vector<int> value)
+void changeYellowSurfaceColour(SDL_Texture *yellowtexture, int val)
+{
+    int value = (val * 4) % 255;
+    SDL_SetTextureColorMod(yellowtexture, value, value, 0);
+}
+
+void changePurpleSurfaceColour(SDL_Texture *purpletexture, int val)
+{
+    int value = (val * 4) % 255;
+    SDL_SetTextureColorMod(purpletexture, value, 0, value);
+}
+
+void printline(SDL_Texture *redtexture, SDL_Texture *greentexture, SDL_Texture *bluetexture, SDL_Texture *yellowtexture, SDL_Texture *purpletexture, SDL_Renderer *renderer, int row, std::vector<int> value)
 {
     SDL_Rect position;
     position.x = 50;
@@ -142,15 +213,27 @@ void printline(SDL_Texture *redtexture, SDL_Texture *greentexture, SDL_Texture *
         // draw horizontal
         position.x = position.x * i;
 
-        if (value[i - 1] < 0)
+        // colours are relatively small
+        if (value[i - 1] < 0 && value[i - 1] > -255)
         {
             changeRedSurfaceColour(redtexture, value[i - 1] * -1);
             SDL_RenderCopy(renderer, redtexture, NULL, &position);
         }
-        else if (value[i - 1] > 0)
+        else if (value[i - 1] > 0 && value[i - 1] < 255)
         {
             changeGreenSurfaceColour(greentexture, value[i - 1]);
             SDL_RenderCopy(renderer, greentexture, NULL, &position);
+        }
+        // colours are very big or very small
+        else if (value[i - 1] < -255)
+        {
+            changeYellowSurfaceColour(yellowtexture, value[i - 1]);
+            SDL_RenderCopy(renderer, yellowtexture, NULL, &position);
+        }
+        else if (value[i - 1] > 255)
+        {
+            changePurpleSurfaceColour(purpletexture, value[i - 1]);
+            SDL_RenderCopy(renderer, purpletexture, NULL, &position);
         }
         else if (value[i - 1] == 0)
             SDL_RenderCopy(renderer, bluetexture, NULL, &position);
@@ -159,30 +242,32 @@ void printline(SDL_Texture *redtexture, SDL_Texture *greentexture, SDL_Texture *
     }
 }
 
-void printgrid(const std::vector<std::vector<int>> &arr, SDL_Texture *redtexture, SDL_Texture *greentexture, SDL_Texture *bluetexture, SDL_Renderer *renderer)
+void printgrid(const std::vector<std::vector<int>> &arr, SDL_Texture *redtexture, SDL_Texture *greentexture, SDL_Texture *bluetexture, SDL_Texture *yellowtexture, SDL_Texture *purpletexture, SDL_Renderer *renderer)
 {
     for (int i = 0; i < arr.size(); ++i)
     {
         //whole row vector
-        printline(redtexture, greentexture, bluetexture, renderer, i, arr[i]);
+        printline(redtexture, greentexture, bluetexture, yellowtexture, purpletexture, renderer, i, arr[i]);
     }
 }
 
-void printdiffgrid(const std::vector<std::vector<int>> &arrDiff, SDL_Texture* redtexture, SDL_Texture* greentexture, SDL_Texture* bluetexture, SDL_Renderer* renderer)
+void printdiffgrid(const std::vector<std::vector<int>> &arrDiff, SDL_Texture *redtexture, SDL_Texture *greentexture, SDL_Texture *bluetexture, SDL_Texture *yellowtexture, SDL_Texture *purpletexture, SDL_Renderer *renderer)
 {
-    for(int i = 0; i < arrDiff.size(); ++i)
+    for (int i = 0; i < arrDiff.size(); ++i)
     {
-    printline(redtexture, greentexture, bluetexture, renderer, i+15, arrDiff[i]);
+        //an extra 15 spaces below
+        printline(redtexture, greentexture, bluetexture, yellowtexture, purpletexture, renderer, i + 15, arrDiff[i]);
     }
 }
 
-void initgrid(std::vector<std::vector<int>> &arr, std::vector<std::vector<int>> &arr2)
+void initGridHorz(std::vector<std::vector<int>> &arr, std::vector<std::vector<int>> &arr2)
 {
     // first pass
     addright(arr[3], arr2[3]);
     addright(arr[4], arr2[4]);
     addleft(arr[3], arr2[3]);
     addleft(arr[4], arr2[4]);
+    // column arg for multi arrays
     adddown(arr, 3, arr2);
     adddown(arr, 4, arr2);
     addup(arr, 3, arr2);
@@ -245,18 +330,18 @@ SDL_Texture *createRedSquare(SDL_Renderer *renderer)
 SDL_Texture *createSquare(SDL_Renderer *renderer, int r, int g, int b)
 >>>>>>> b980739edc0c503a611dbd3b8d69d000b7729d4e
 {
-    SDL_Surface *redsurface = NULL;
-    redsurface = SDL_CreateRGBSurface(0, 50, 50, 32, 0, 0, 0, 0);
+    SDL_Surface *surface = NULL;
+    surface = SDL_CreateRGBSurface(0, 50, 50, 32, 0, 0, 0, 0);
 
-    SDL_FillRect(redsurface, NULL, SDL_MapRGB(redsurface->format, 255, 0, 0));
+    SDL_FillRect(surface, NULL, SDL_MapRGB(surface->format, r, g, b));
 
-    SDL_Texture *redtexture = SDL_CreateTextureFromSurface(renderer, redsurface);
+    SDL_Texture *texture = SDL_CreateTextureFromSurface(renderer, surface);
 
-    SDL_FreeSurface(redsurface);
+    SDL_FreeSurface(surface);
 
-    return redtexture;
+    return texture;
 }
-
+/*
 SDL_Texture *createGreenTexture(SDL_Renderer *renderer)
 {
     SDL_Surface *greensurface = NULL;
@@ -270,7 +355,8 @@ SDL_Texture *createGreenTexture(SDL_Renderer *renderer)
 
     return greentexture;
 }
-
+*/
+/*
 SDL_Texture *createBlueTexture(SDL_Renderer *renderer)
 {
     SDL_Surface *bluesurface = NULL;
@@ -293,28 +379,27 @@ SDL_Texture *createBlueTexture(SDL_Renderer *renderer)
 void printNumbers(SDL_Renderer *renderer, int w, int x, int y, int z)
 {
     // display numbers
-        // x pos, y pos, width, height
-        SDL_Rect textPositionW{50, 500, 50, 50};
-        SDL_Rect textPositionX{150, 500, 50, 50};
-        SDL_Rect textPositionY{50, 600, 50, 50};
-        SDL_Rect textPositionZ{150, 600, 50, 50};
+    // x pos, y pos, width, height
+    SDL_Rect textPositionW{50, 500, 50, 50};
+    SDL_Rect textPositionX{150, 500, 50, 50};
+    SDL_Rect textPositionY{50, 600, 50, 50};
+    SDL_Rect textPositionZ{150, 600, 50, 50};
 
-        std::string sw = std::to_string(w);
-        std::string sx = std::to_string(x);
-        std::string sy = std::to_string(y);
-        std::string sz = std::to_string(z);
+    std::string sw = std::to_string(w);
+    std::string sx = std::to_string(x);
+    std::string sy = std::to_string(y);
+    std::string sz = std::to_string(z);
 
-        SDL_Texture *textTextureW = loadText(renderer, sw.c_str());
-        SDL_Texture *textTextureX = loadText(renderer, sx.c_str());
-        SDL_Texture *textTextureY = loadText(renderer, sy.c_str());
-        SDL_Texture *textTextureZ = loadText(renderer, sz.c_str());
+    SDL_Texture *textTextureW = loadText(renderer, sw.c_str());
+    SDL_Texture *textTextureX = loadText(renderer, sx.c_str());
+    SDL_Texture *textTextureY = loadText(renderer, sy.c_str());
+    SDL_Texture *textTextureZ = loadText(renderer, sz.c_str());
 
-        //  SDL_RenderClear(renderer);
-        SDL_RenderCopy(renderer, textTextureW, NULL, &textPositionW);
-        SDL_RenderCopy(renderer, textTextureX, NULL, &textPositionX);
-        SDL_RenderCopy(renderer, textTextureY, NULL, &textPositionY);
-        SDL_RenderCopy(renderer, textTextureZ, NULL, &textPositionZ);
-
+    //  SDL_RenderClear(renderer);
+    SDL_RenderCopy(renderer, textTextureW, NULL, &textPositionW);
+    SDL_RenderCopy(renderer, textTextureX, NULL, &textPositionX);
+    SDL_RenderCopy(renderer, textTextureY, NULL, &textPositionY);
+    SDL_RenderCopy(renderer, textTextureZ, NULL, &textPositionZ);
 }
 */
 
@@ -327,8 +412,14 @@ int main(int argc, char *argv[])
         return 1;
     }
 
+#ifdef __ANDROID__
     SDL_Window *window = NULL;
-    window = SDL_CreateWindow("Hello SDL2", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 640, 480, 0);
+    window = SDL_CreateWindow("Android SDL2", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 640, 480, 0);
+#endif
+#ifdef __WIN32__
+    SDL_Window *window = NULL;
+    window = SDL_CreateWindow("Win SDL2", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 160, 120, 0);
+#endif
 
     if (window == NULL)
     {
@@ -341,19 +432,18 @@ int main(int argc, char *argv[])
         fprintf(stderr, "%s", SDL_GetError());
 
     // create three surfaces to draw off screen
-    // fill these surfaces with red, green and blue
+    // fill these surfaces with colours
     // create textures from surfaces and free surfaces
-    // return coloured Textures
-    SDL_Texture *redtexture = createRedSquare(renderer);
 
-    SDL_Texture *greentexture = createGreenTexture(renderer);
+    SDL_Texture *redtexture = createSquare(renderer, 255, 0, 0);
 
-    SDL_Texture *bluetexture = createBlueTexture(renderer);
-    
-    // purple for high negative numbers
-    // yellow for high positive numbers
-    
-    // a grid below for the differences between cells and not the values
+    SDL_Texture *greentexture = createSquare(renderer, 0, 255, 0);
+
+    SDL_Texture *bluetexture = createSquare(renderer, 0, 0, 255);
+
+    SDL_Texture *yellowtexture = createSquare(renderer, 255, 255, 0);
+
+    SDL_Texture *purpletexture = createSquare(renderer, 255, 0, 255);
 
     // allow a touch to change patterns
     SDL_Event event;
@@ -365,7 +455,7 @@ int main(int argc, char *argv[])
     int y{0};
     int z{0};
 
-    std::vector<std::vector<int>> arr =
+    std::vector<std::vector<int>> arrHorz =
         {{0, 0, 0, 0, 0, 0, 0, 0},
          {0, 0, 0, 0, 0, 0, 0, 0},
          {0, 0, 0, 0, 0, 0, 0, 0},
@@ -374,18 +464,18 @@ int main(int argc, char *argv[])
          {0, 0, 0, 0, 0, 0, 0, 0},
          {0, 0, 0, 0, 0, 0, 0, 0},
          {0, 0, 0, 0, 0, 0, 0, 0}};
-         
-     // make a copy so we can display lower numbers
-     std::vector<std::vector<int>> arrDiff = arr;
-    
-    
+
+    // make a copy
+    std::vector<std::vector<int>> arrDiff = arrHorz;
+    std::vector<std::vector<int>> arrDiag = arrHorz;
+
     //main loop
     SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
 
     srand(time(0));
     bool go = true;
 
-    for (int i = 0; i < 20; ++i)
+    for (int i = 0; i < 5; ++i)
     {
         while (go == false)
         {
@@ -405,7 +495,12 @@ int main(int argc, char *argv[])
         y = rand() % 20;
         z = rand() % 20;
 
-        arr =
+        // manual entry of numbers
+        // 1 4 9 1
+        // 0 3 5 8
+        //w = 1; x = 4; y = 9; z = 12;
+
+        arrHorz =
             {{0, 0, 0, 0, 0, 0, 0, 0},
              {0, 0, 0, 0, 0, 0, 0, 0},
              {0, 0, 0, 0, 0, 0, 0, 0},
@@ -415,13 +510,13 @@ int main(int argc, char *argv[])
              {0, 0, 0, 0, 0, 0, 0, 0},
              {0, 0, 0, 0, 0, 0, 0, 0}};
 
-        initgrid(arr, arrDiff);
-        
+        initGridHorz(arrHorz, arrDiff);
+
         SDL_RenderClear(renderer);
-        
-        printgrid(arr, redtexture, greentexture, bluetexture, renderer);
-        
-        printdiffgrid(arrDiff, redtexture, greentexture, bluetexture, renderer);
+
+        printgrid(arrHorz, redtexture, greentexture, bluetexture, yellowtexture, purpletexture, renderer);
+
+        printdiffgrid(arrDiff, redtexture, greentexture, bluetexture, yellowtexture, purpletexture, renderer);
 
         // display numberd under grid
 <<<<<<< HEAD
@@ -433,6 +528,21 @@ int main(int argc, char *argv[])
 >>>>>>> b980739edc0c503a611dbd3b8d69d000b7729d4e
         // update screen
         SDL_RenderPresent(renderer);
+
+        for (int i = 0; i < 50; ++i)
+        {
+            SDL_RenderClear(renderer);
+
+            initGridDiag(arrHorz);
+            initGridHorz(arrHorz, arrDiff);
+            printgrid(arrHorz, redtexture, greentexture, bluetexture, yellowtexture, purpletexture, renderer);
+
+            printdiffgrid(arrDiff, redtexture, greentexture, bluetexture, yellowtexture, purpletexture, renderer);
+
+            printNumbers(renderer, w, x, y, z);
+            SDL_RenderPresent(renderer);
+            SDL_Delay(1200);
+        }
 
         go = false;
     }
