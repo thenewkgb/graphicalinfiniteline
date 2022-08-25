@@ -4,8 +4,8 @@
 //
 
 #include <stdio.h>
-#include <SDL2/SDL.h>
-#include <SDL2/SDL_ttf.h>
+#include <SDL.h>
+//#include <SDL_ttf.h>
 #include <vector>
 #include <random>
 
@@ -61,7 +61,6 @@ int addright(std::vector<int> &vtr, std::vector<int> &vtr2)
     }
     return ans;
 }
-
 int addleft(std::vector<int> &vtr,
                     std::vector<int> &vtr2)
 {
@@ -204,6 +203,7 @@ void initgrid(std::vector<std::vector<int>> &arr, std::vector<std::vector<int>> 
     addleft(arr[7], arr2[7]);
 }
 
+/*
 static SDL_Texture *loadText(SDL_Renderer *renderer, const char *text)
 {
     if (TTF_Init() == -1)
@@ -228,7 +228,7 @@ static SDL_Texture *loadText(SDL_Renderer *renderer, const char *text)
     }
     return texture;
 }
-
+*/
 SDL_Texture *createRedSquare(SDL_Renderer *renderer)
 {
     SDL_Surface *redsurface = NULL;
@@ -271,6 +271,7 @@ SDL_Texture *createBlueTexture(SDL_Renderer *renderer)
     return bluetexture;
 }
 
+/*
 void printNumbers(SDL_Renderer *renderer, int w, int x, int y, int z)
 {
     // display numbers
@@ -297,6 +298,7 @@ void printNumbers(SDL_Renderer *renderer, int w, int x, int y, int z)
         SDL_RenderCopy(renderer, textTextureZ, NULL, &textPositionZ);
 
 }
+*/
 
 int main(int argc, char *argv[])
 {
@@ -404,7 +406,7 @@ int main(int argc, char *argv[])
         printdiffgrid(arrDiff, redtexture, greentexture, bluetexture, renderer);
 
         // display numberd under grid
-        printNumbers(renderer, w, x, y, z);
+        //printNumbers(renderer, w, x, y, z);
         
         // update screen
         SDL_RenderPresent(renderer);
